@@ -1,5 +1,5 @@
 use tauri::menu::{MenuBuilder, MenuEvent, MenuItem};
-use tauri::tray::{TrayIcon, TrayIconBuilder, TrayIconEvent};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Wry};
 
 use crate::window_utils::show_main_window;
@@ -16,7 +16,10 @@ pub fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
     let exit = MenuItem::with_id(app, MENU_EXIT, "Exit", true, None::<String>)?;
     let menu = MenuBuilder::new(app).items(&[&show, &exit]).build()?;
 
-    let mut builder = TrayIconBuilder::with_id(TRAY_ID).menu(&menu).tooltip("Quick Launcher");
+    let mut builder = TrayIconBuilder::with_id(TRAY_ID)
+        .menu(&menu)
+        .tooltip("Quick Launcher")
+        .show_menu_on_left_click(false);
     if let Some(icon) = app.default_window_icon() {
         builder = builder.icon(icon.clone());
     }
@@ -30,7 +33,12 @@ pub fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
             }
         })
         .on_tray_icon_event(|tray: &TrayIcon<Wry>, event: TrayIconEvent| {
-            if let TrayIconEvent::DoubleClick { .. } = event {
+            if let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } = event
+            {
                 show_main_window(tray.app_handle());
             }
         })

@@ -63,8 +63,8 @@ function onApplyHotkey(): void {
         <input
           class="field__input field__input--range"
           type="range"
-          min="90"
-          max="260"
+          min="80"
+          max="480"
           step="2"
           :value="cardWidth"
           @input="onWidthInput"
@@ -77,8 +77,8 @@ function onApplyHotkey(): void {
         <input
           class="field__input field__input--range"
           type="range"
-          min="70"
-          max="220"
+          min="60"
+          max="360"
           step="2"
           :value="cardHeight"
           @input="onHeightInput"

@@ -104,8 +104,58 @@ fn db_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     Ok(base_dir.join("my-quickstart").join("launcher.db"))
 }
 
+fn legacy_db_paths(app: &tauri::AppHandle) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    if let Ok(p) = app.path().app_local_data_dir() {
+        paths.push(p.join("launcher.db"));
+    }
+    if let Ok(p) = app.path().app_data_dir() {
+        paths.push(p.join("launcher.db"));
+    }
+    paths
+}
+
+fn count_groups_in_existing_db(path: &PathBuf) -> i64 {
+    use rusqlite::OpenFlags;
+    if !path.exists() {
+        return 0;
+    }
+    let conn = match Connection::open_with_flags(
+        path,
+        OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX,
+    ) {
+        Ok(c) => c,
+        Err(_) => return 0,
+    };
+    conn.query_row("SELECT COUNT(1) FROM groups", [], |r| r.get(0))
+        .unwrap_or(0)
+}
+
+fn migrate_legacy_db_if_needed(app: &tauri::AppHandle, new_path: &PathBuf) -> Result<(), String> {
+    let new_groups = count_groups_in_existing_db(new_path);
+    let need_migration = !new_path.exists() || new_groups == 0;
+    if !need_migration {
+        return Ok(());
+    }
+
+    let legacy_paths = legacy_db_paths(app);
+    let legacy_path = legacy_paths
+        .into_iter()
+        .find(|p| count_groups_in_existing_db(p) > 0);
+    let Some(legacy_path) = legacy_path else {
+        return Ok(());
+    };
+
+    if let Some(parent) = new_path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    fs::copy(&legacy_path, new_path).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 fn open_db(app: &tauri::AppHandle) -> Result<Connection, String> {
     let path = db_path(app)?;
+    migrate_legacy_db_if_needed(app, &path)?;
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }

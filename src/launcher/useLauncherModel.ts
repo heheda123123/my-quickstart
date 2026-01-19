@@ -50,8 +50,8 @@ export function useLauncherModel() {
   });
 
   const appStyle = computed<Record<string, string>>(() => {
-    const width = clamp(state.settings.cardWidth, 90, 260);
-    const height = clamp(state.settings.cardHeight, 70, 220);
+    const width = clamp(state.settings.cardWidth, 80, 480);
+    const height = clamp(state.settings.cardHeight, 60, 360);
     const iconBase = Math.min(width, height);
     const icon = Math.round(iconBase * 0.35);
     const iconImg = Math.round(icon * 0.72);
@@ -360,12 +360,12 @@ export function useLauncherModel() {
   }
 
   function updateCardWidth(value: number): void {
-    state.settings.cardWidth = clamp(Math.round(value), 90, 260);
+    state.settings.cardWidth = clamp(Math.round(value), 80, 480);
     scheduleSave();
   }
 
   function updateCardHeight(value: number): void {
-    state.settings.cardHeight = clamp(Math.round(value), 70, 220);
+    state.settings.cardHeight = clamp(Math.round(value), 60, 360);
     scheduleSave();
   }
 
