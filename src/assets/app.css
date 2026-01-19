@@ -27,6 +27,10 @@ input {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  --card-min-width: 120px;
+  --card-height: 96px;
+  --card-icon-size: 42px;
+  --card-icon-img-size: 30px;
   background:
     radial-gradient(900px 450px at 30% 20%, rgba(86, 135, 255, 0.16), transparent 55%),
     radial-gradient(700px 400px at 70% 10%, rgba(24, 200, 219, 0.14), transparent 50%),
@@ -124,15 +128,38 @@ input {
   padding: 10px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(8, 10, 14, 0.4);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar__groups {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
   overflow: auto;
-  max-height: calc(100vh - 44px - 16px);
+  max-height: calc(100vh - 44px - 56px);
   padding-right: 4px;
+}
+
+.sidebar__footer {
+  padding-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.sidebar__settings {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+}
+
+.sidebar__settings:hover {
+  background: rgba(255, 255, 255, 0.09);
 }
 
 .group {
@@ -191,7 +218,7 @@ input {
   flex: 1;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
   gap: 10px;
   align-content: start;
   overflow: auto;
@@ -199,7 +226,7 @@ input {
 }
 
 .card {
-  height: 96px;
+  height: var(--card-height);
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -227,9 +254,9 @@ input {
 }
 
 .card__icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: var(--card-icon-size);
+  height: var(--card-icon-size);
+  border-radius: calc(var(--card-icon-size) / 3.5);
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -246,8 +273,8 @@ input {
 }
 
 .card__iconImg {
-  width: 30px;
-  height: 30px;
+  width: var(--card-icon-img-size);
+  height: var(--card-icon-img-size);
   object-fit: contain;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
 }
@@ -389,6 +416,15 @@ input {
   background: rgba(255, 255, 255, 0.06);
   color: inherit;
   outline: none;
+}
+
+.field__input--range {
+  padding: 0;
+}
+
+.field__hint {
+  font-size: 12px;
+  opacity: 0.75;
 }
 
 .field__input:focus {

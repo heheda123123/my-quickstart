@@ -12,6 +12,7 @@ const emit = defineEmits<{
   (e: "selectGroup", id: string): void;
   (e: "contextmenuBlank", ev: MouseEvent): void;
   (e: "contextmenuGroup", ev: MouseEvent, id: string): void;
+  (e: "openSettings"): void;
 }>();
 </script>
 
@@ -31,6 +32,16 @@ const emit = defineEmits<{
         <span class="group__name" :title="g.name">{{ g.name }}</span>
       </button>
     </div>
+
+    <div class="sidebar__footer">
+      <button
+        class="sidebar__settings"
+        type="button"
+        @click="emit('openSettings')"
+        @contextmenu.stop
+      >
+        Settings
+      </button>
+    </div>
   </aside>
 </template>
-

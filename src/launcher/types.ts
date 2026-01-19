@@ -13,8 +13,13 @@ export type Group = {
   apps: AppEntry[];
 };
 
+export type UiSettings = {
+  cardSize: number;
+};
+
 export type LauncherState = {
   version: 1;
   activeGroupId: string;
   groups: Group[];
+  settings: UiSettings;
 };

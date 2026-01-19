@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, path::PathBuf};
 use tauri::Manager;
 
+mod tray;
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -42,6 +44,26 @@ struct LauncherState {
     #[serde(rename = "activeGroupId")]
     active_group_id: String,
     groups: Vec<Group>,
+    #[serde(default)]
+    settings: UiSettings,
+}
+
+fn default_card_size() -> u32 {
+    120
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct UiSettings {
+    #[serde(rename = "cardSize", default = "default_card_size")]
+    card_size: u32,
+}
+
+impl Default for UiSettings {
+    fn default() -> Self {
+        Self {
+            card_size: default_card_size(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -210,10 +232,24 @@ fn load_launcher_state(app: tauri::AppHandle) -> Result<Option<LauncherState>, S
             .unwrap_or_else(String::new)
     };
 
+    let settings_raw: String = conn
+        .query_row(
+            "SELECT value FROM meta WHERE key = 'ui_settings' LIMIT 1",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or_else(|_| String::new());
+    let settings = if settings_raw.trim().is_empty() {
+        UiSettings::default()
+    } else {
+        serde_json::from_str::<UiSettings>(&settings_raw).unwrap_or_else(|_| UiSettings::default())
+    };
+
     Ok(Some(LauncherState {
         version: 1,
         active_group_id: active,
         groups,
+        settings,
     }))
 }
 
@@ -230,6 +266,14 @@ fn save_launcher_state(app: tauri::AppHandle, state: LauncherState) -> Result<()
     tx.execute(
         "INSERT INTO meta(key, value) VALUES('active_group_id', ?1)",
         params![state.active_group_id],
+    )
+    .map_err(|e| e.to_string())?;
+
+    let settings_json =
+        serde_json::to_string(&state.settings).map_err(|e| e.to_string())?;
+    tx.execute(
+        "INSERT INTO meta(key, value) VALUES('ui_settings', ?1)",
+        params![settings_json],
     )
     .map_err(|e| e.to_string())?;
 
@@ -422,6 +466,19 @@ fn get_file_icon_windows(path: &str) -> Result<String, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(desktop)]
+            {
+                tray::setup_tray(&app.handle())?;
+            }
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![

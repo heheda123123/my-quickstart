@@ -1,4 +1,4 @@
-import type { AppEntry, Group, LauncherState } from "./types";
+import type { AppEntry, Group, LauncherState, UiSettings } from "./types";
 
 export function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -21,6 +21,9 @@ export function suggestAppName(filePath: string): string {
 }
 
 export function createDefaultState(): LauncherState {
+  const settings: UiSettings = {
+    cardSize: 120,
+  };
   const groups: Group[] = [
     { id: createId(), name: "Group-1", apps: [] },
     { id: createId(), name: "reverse", apps: [] },
@@ -30,6 +33,7 @@ export function createDefaultState(): LauncherState {
     version: 1,
     activeGroupId: groups[0]?.id ?? createId(),
     groups,
+    settings,
   };
 }
 
