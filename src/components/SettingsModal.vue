@@ -137,8 +137,8 @@ function onApplyHotkey(): void {
 </script>
 
 <template>
-  <div v-if="open" class="modal" @click.self="emit('close')">
-    <div class="modal__panel" @click.stop>
+  <div v-if="open" class="settingsPanel">
+    <div class="modal__panel">
       <div class="modal__title">Settings</div>
 
       <div class="tabs" role="tablist" aria-label="Settings tabs">
@@ -318,6 +318,19 @@ function onApplyHotkey(): void {
 </template>
 
 <style scoped>
+.settingsPanel {
+  position: fixed;
+  top: 58px;
+  right: 14px;
+  z-index: 70;
+  pointer-events: none;
+}
+
+.settingsPanel > .modal__panel {
+  width: min(420px, calc(100vw - 32px));
+  pointer-events: auto;
+}
+
 .tabs {
   display: flex;
   gap: 6px;

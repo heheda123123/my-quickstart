@@ -25,6 +25,7 @@ const {
   openMenu,
   closeMenu,
   menuAddApp,
+  menuAddUwpApp,
   menuAddGroup,
   menuOpenApp,
   menuEditApp,
@@ -52,7 +53,6 @@ const {
   updateDblClickBlankToHide,
   applyToggleHotkey,
   onMainBlankDoubleClick,
-  pickAndAddApps,
 } = useLauncherModel();
 
 function onSidebarBlank(ev: MouseEvent): void {
@@ -119,6 +119,7 @@ function onGridBlankDblClick(): void {
       :x="menu.x"
       :y="menu.y"
       @add-app="menuAddApp"
+      @add-uwp-app="menuAddUwpApp"
       @add-group="menuAddGroup"
       @open-app="menuOpenApp"
       @edit-app="menuEditApp"
@@ -167,7 +168,6 @@ function onGridBlankDblClick(): void {
       :tauri-runtime="tauriRuntime"
       @close="closeAddApp"
       @add-uwp="addUwpToActiveGroup"
-      @add-desktop="pickAndAddApps().finally(closeAddApp)"
     />
   </div>
 </template>

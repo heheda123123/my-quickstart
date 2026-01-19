@@ -183,12 +183,15 @@ export function useLauncherModel() {
   async function hydrateEntryIcons(entries: AppEntry[]): Promise<void> {
     if (!tauriRuntime) return;
     if (!hydrated.value) return;
-    const pending = entries.filter((e) => !e.icon && !isUwpPath(e.path));
+    const pending = entries.filter((e) => !e.icon);
     if (pending.length === 0) return;
     await Promise.allSettled(
       pending.map(async (entry) => {
+        const lookupPath = isUwpPath(entry.path)
+          ? `shell:AppsFolder\\\\${entry.path.slice(UWP_PREFIX.length)}`
+          : entry.path;
         const icon = (await invoke("get_file_icon", {
-          path: entry.path,
+          path: lookupPath,
         })) as unknown;
         if (typeof icon === "string" && icon.trim()) {
           entry.icon = icon;
@@ -244,6 +247,10 @@ export function useLauncherModel() {
   }
 
   function menuAddApp(): void {
+    pickAndAddApps().finally(closeMenu);
+  }
+
+  function menuAddUwpApp(): void {
     openAddApp();
     closeMenu();
   }
@@ -447,53 +454,17 @@ export function useLauncherModel() {
   });
 
   return {
-    tauriRuntime,
-    state,
-    search,
-    dragActive,
-    toast,
-    settingsOpen,
-    addAppOpen,
-    appStyle,
-    filteredApps,
-    menu,
-    editor,
-    setActiveGroup,
-    launch,
-    openMenu,
-    closeMenu,
-    menuAddApp,
-    menuAddGroup,
-    menuOpenApp,
-    menuEditApp,
-    menuRemoveApp,
-    menuRenameGroup,
-    menuRemoveGroup,
-    pickAndAddApps,
-    openAddApp,
-    closeAddApp,
-    addUwpToActiveGroup,
-    addGroup,
-    renameGroup,
-    removeGroup,
-    minimizeWindow,
-    toggleMaximizeWindow,
-    closeWindow,
-    startWindowDragging,
-    closeEditor,
-    applyEditorUpdate,
-    openSettings,
-    closeSettings,
-    updateCardWidth,
-    updateCardHeight,
-    updateSidebarWidth,
-    updateFontFamily,
-    updateFontSize,
-    updateCardFontSize,
-    updateCardIconScale,
-    updateTheme,
-    updateDblClickBlankToHide,
-    applyToggleHotkey,
-    onMainBlankDoubleClick,
+    tauriRuntime, state, search, dragActive, toast,
+    settingsOpen, addAppOpen, appStyle, filteredApps,
+    menu, editor, setActiveGroup, launch,
+    openMenu, closeMenu, menuAddApp, menuAddUwpApp, menuAddGroup,
+    menuOpenApp, menuEditApp, menuRemoveApp, menuRenameGroup, menuRemoveGroup,
+    pickAndAddApps, openAddApp, closeAddApp, addUwpToActiveGroup,
+    addGroup, renameGroup, removeGroup,
+    minimizeWindow, toggleMaximizeWindow, closeWindow, startWindowDragging,
+    closeEditor, applyEditorUpdate, openSettings, closeSettings,
+    updateCardWidth, updateCardHeight, updateSidebarWidth, updateFontFamily, updateFontSize,
+    updateCardFontSize, updateCardIconScale, updateTheme, updateDblClickBlankToHide,
+    applyToggleHotkey, onMainBlankDoubleClick,
   };
 }

@@ -12,6 +12,7 @@ defineProps<Props>();
 
 const emit = defineEmits<{
   (e: "addApp"): void;
+  (e: "addUwpApp"): void;
   (e: "addGroup"): void;
   (e: "openApp"): void;
   (e: "editApp"): void;
@@ -32,6 +33,7 @@ const emit = defineEmits<{
   >
     <template v-if="kind === 'blankMain'">
       <button class="menu__item" type="button" @click="emit('addApp')">Add App...</button>
+      <button class="menu__item" type="button" @click="emit('addUwpApp')">Add UWP App...</button>
     </template>
 
     <template v-else-if="kind === 'blankSidebar'">
@@ -54,4 +56,3 @@ const emit = defineEmits<{
     </template>
   </div>
 </template>
-

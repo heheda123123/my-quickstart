@@ -14,7 +14,6 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "addUwp", app: UwpAppInfo): void;
-  (e: "addDesktop"): void;
 }>();
 
 const search = ref("");
@@ -56,11 +55,10 @@ watch(
 <template>
   <div v-if="open" class="modal" @click.self="emit('close')">
     <div class="modal__panel" @click.stop>
-      <div class="modal__title">Add App</div>
+      <div class="modal__title">Add UWP App</div>
 
       <div class="addApp__toolbar">
         <input v-model="search" class="field__input" placeholder="Search UWP apps..." />
-        <button class="btn" type="button" @click="emit('addDesktop')">Add Desktop App...</button>
       </div>
 
       <div v-if="loading" class="addApp__hint">Loading...</div>
@@ -71,7 +69,10 @@ watch(
           :key="a.appId"
           class="addApp__item"
           type="button"
-          @click="emit('addUwp', a)"
+          @click="
+            emit('addUwp', a);
+            emit('close');
+          "
         >
           <div class="addApp__name">{{ a.name }}</div>
           <div class="addApp__id">{{ a.appId }}</div>
@@ -141,4 +142,3 @@ watch(
   opacity: 0.95;
 }
 </style>
-
