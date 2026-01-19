@@ -17,5 +17,5 @@ a quick start tool
 Theoretically cross-platform, but currently only tested on Windows.
 ```
 pnpm install
-pnpm tauri build
+pnpm tauri build --no-bundle
 ```
