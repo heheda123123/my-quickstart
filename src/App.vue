@@ -189,6 +189,20 @@ async function closeWindow(): Promise<void> {
   }
 }
 
+async function startWindowDragging(ev: MouseEvent): Promise<void> {
+  if (!tauriRuntime) return;
+  if (ev.button !== 0) return;
+  const target = ev.target as HTMLElement | null;
+  if (target?.closest("input, button, textarea, select, a")) return;
+  try {
+    await getCurrentWindow().startDragging();
+  } catch (e) {
+    showToast(
+      `Drag failed: ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+}
+
 async function hydrateEntryIcons(entries: AppEntry[]): Promise<void> {
   if (!tauriRuntime) return;
   if (!hydrated.value) return;
@@ -345,9 +359,9 @@ onUnmounted(() => {
 
 <template>
   <div class="app" @contextmenu="(e) => openMenu('blank', e)">
-    <header class="topbar">
+    <header class="topbar" data-tauri-drag-region @mousedown="startWindowDragging">
       <div class="topbar__drag" data-tauri-drag-region @dblclick="toggleMaximizeWindow()">
-        <div class="topbar__title">Quick Launcher</div>
+        <div class="topbar__title" data-tauri-drag-region>Quick Launcher</div>
       </div>
 
       <div class="topbar__right">
