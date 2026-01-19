@@ -188,7 +188,7 @@ export function useLauncherModel() {
     await Promise.allSettled(
       pending.map(async (entry) => {
         const lookupPath = isUwpPath(entry.path)
-          ? `shell:AppsFolder\\\\${entry.path.slice(UWP_PREFIX.length)}`
+          ? `shell:AppsFolder\\${entry.path.slice(UWP_PREFIX.length)}`
           : entry.path;
         const icon = (await invoke("get_file_icon", {
           path: lookupPath,

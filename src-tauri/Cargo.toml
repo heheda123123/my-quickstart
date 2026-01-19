@@ -29,12 +29,11 @@ base64 = "0.22"
 image = { version = "0.25", default-features = false, features = ["png"] }
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.56", features = [
+windows = { version = "0.61.3", features = [
   "Win32_Foundation",
   "Win32_Graphics_Gdi",
   "Win32_Storage_FileSystem",
   "Win32_System_Com",
   "Win32_UI_Shell",
-  "Win32_UI_Shell_Common",
   "Win32_UI_WindowsAndMessaging",
 ] }
