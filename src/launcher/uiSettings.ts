@@ -57,6 +57,9 @@ export function applyLoadedUiSettings(target: UiSettings, loaded: UiSettings): v
 
   const maybeIconScale = (loaded as any).cardIconScale;
   if (typeof maybeIconScale === "number") target.cardIconScale = Math.round(maybeIconScale);
+
+  const maybeDblClick = (loaded as any).dblClickBlankToHide;
+  if (typeof maybeDblClick === "boolean") target.dblClickBlankToHide = maybeDblClick;
 }
 
 export function computeAppStyle(settings: UiSettings): Record<string, string> {
@@ -78,4 +81,3 @@ export function computeAppStyle(settings: UiSettings): Record<string, string> {
     "--font-size": `${clampFontSize(settings.fontSize)}px`,
   };
 }
-

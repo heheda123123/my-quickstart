@@ -111,6 +111,9 @@ function coerceLauncherState(value: unknown): LauncherState | null {
   if (typeof rawSettings.cardIconScale === "number" && Number.isFinite(rawSettings.cardIconScale)) {
     settings.cardIconScale = clampCardIconScale(rawSettings.cardIconScale, 128);
   }
+  if (typeof rawSettings.dblClickBlankToHide === "boolean") {
+    settings.dblClickBlankToHide = rawSettings.dblClickBlankToHide;
+  }
 
   const activeGroupId =
     typeof raw.activeGroupId === "string" &&

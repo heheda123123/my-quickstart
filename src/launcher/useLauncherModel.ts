@@ -1,14 +1,13 @@
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { createWindowControls } from "./windowControls";
 
 import { loadState, saveState } from "./storage";
 import type { AppEntry, Group, LauncherState } from "./types";
 import { createAppEditorModel } from "./appEditorModel";
+import { createAddAppFlow, isUwpPath, UWP_PREFIX } from "./addAppFlow";
 import {
-  addAppsToGroup,
   createDefaultState,
   createId,
   normalizeDroppedPaths,
@@ -100,6 +99,24 @@ export function useLauncherModel() {
 
   watch(state, scheduleSave, { deep: true });
 
+  const {
+    addAppOpen,
+    openAddApp,
+    closeAddApp,
+    pickAndAddDesktopApps,
+    addPathsToActiveGroup,
+    addUwpToActiveGroup,
+  } = createAddAppFlow({
+    tauriRuntime,
+    getActiveGroup: () => activeGroup.value,
+    showToast,
+    hydrateEntryIcons: async (entries) => {
+      await hydrateEntryIcons(entries);
+    },
+    scheduleSave,
+  });
+  const pickAndAddApps = pickAndAddDesktopApps;
+
   function setActiveGroup(id: string): void {
     state.activeGroupId = id;
   }
@@ -131,40 +148,19 @@ export function useLauncherModel() {
     scheduleSave();
   }
 
-  async function pickAndAddApps(): Promise<void> {
-    if (!isTauriRuntime()) {
-      showToast("This action requires the Tauri runtime");
-      return;
-    }
-    const selection = await openDialog({
-      multiple: true,
-      directory: false,
-      title: "Add application",
-    });
-    if (!selection) return;
-    const paths = Array.isArray(selection) ? selection : [selection];
-    addPathsToActiveGroup(paths);
-  }
-
-  function addPathsToActiveGroup(paths: string[]): void {
-    const group = activeGroup.value;
-    if (!group) return;
-    const added = addAppsToGroup(group, paths);
-    if (added.length > 0) {
-      showToast(`Added ${added.length} item(s)`);
-      hydrateEntryIcons(added);
-      scheduleSave();
-    }
-  }
-
   async function launch(entry: AppEntry): Promise<void> {
     if (!isTauriRuntime()) {
       showToast("This action requires the Tauri runtime");
       return;
     }
     try {
-      const argText = (entry.args ?? "").trim();
-      await invoke("spawn_app", { path: entry.path, args: parseArgs(argText) });
+      if (isUwpPath(entry.path)) {
+        const appId = entry.path.slice(UWP_PREFIX.length);
+        await invoke("spawn_uwp_app", { appId });
+      } else {
+        const argText = (entry.args ?? "").trim();
+        await invoke("spawn_app", { path: entry.path, args: parseArgs(argText) });
+      }
     } catch (e) {
       const details =
         e instanceof Error
@@ -187,7 +183,7 @@ export function useLauncherModel() {
   async function hydrateEntryIcons(entries: AppEntry[]): Promise<void> {
     if (!tauriRuntime) return;
     if (!hydrated.value) return;
-    const pending = entries.filter((e) => !e.icon);
+    const pending = entries.filter((e) => !e.icon && !isUwpPath(e.path));
     if (pending.length === 0) return;
     await Promise.allSettled(
       pending.map(async (entry) => {
@@ -248,7 +244,8 @@ export function useLauncherModel() {
   }
 
   function menuAddApp(): void {
-    pickAndAddApps().finally(closeMenu);
+    openAddApp();
+    closeMenu();
   }
 
   function menuAddGroup(): void {
@@ -334,6 +331,16 @@ export function useLauncherModel() {
   function updateTheme(value: string): void {
     state.settings.theme = normalizeTheme(value);
     scheduleSave();
+  }
+
+  function updateDblClickBlankToHide(value: boolean): void {
+    state.settings.dblClickBlankToHide = value;
+    scheduleSave();
+  }
+
+  function onMainBlankDoubleClick(): void {
+    if (!state.settings.dblClickBlankToHide) return;
+    closeWindow();
   }
 
   function updateSidebarWidth(value: number): void {
@@ -446,6 +453,7 @@ export function useLauncherModel() {
     dragActive,
     toast,
     settingsOpen,
+    addAppOpen,
     appStyle,
     filteredApps,
     menu,
@@ -462,6 +470,9 @@ export function useLauncherModel() {
     menuRenameGroup,
     menuRemoveGroup,
     pickAndAddApps,
+    openAddApp,
+    closeAddApp,
+    addUwpToActiveGroup,
     addGroup,
     renameGroup,
     removeGroup,
@@ -481,6 +492,8 @@ export function useLauncherModel() {
     updateCardFontSize,
     updateCardIconScale,
     updateTheme,
+    updateDblClickBlankToHide,
     applyToggleHotkey,
+    onMainBlankDoubleClick,
   };
 }

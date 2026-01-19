@@ -13,6 +13,7 @@ type Props = {
   fontSize: number;
   cardFontSize: number;
   cardIconScale: number;
+  dblclickBlankToHide: boolean;
 };
 
 const props = defineProps<Props>();
@@ -28,6 +29,7 @@ const emit = defineEmits<{
   (e: "updateFontSize", value: number): void;
   (e: "updateCardFontSize", value: number): void;
   (e: "updateCardIconScale", value: number): void;
+  (e: "updateDblclickBlankToHide", value: boolean): void;
 }>();
 
 const cardWidth = ref(120);
@@ -39,11 +41,16 @@ const fontFamily = ref("system");
 const fontSize = ref(14);
 const cardFontSize = ref(12);
 const cardIconScale = ref(48);
+const dblclickBlankToHide = ref(true);
+
+type SettingsTab = "appearance" | "layout" | "behavior" | "hotkey";
+const tab = ref<SettingsTab>("appearance");
 
 watch(
   () => props.open,
   (open) => {
     if (!open) return;
+    tab.value = "appearance";
     cardWidth.value = props.cardWidth;
     cardHeight.value = props.cardHeight;
     toggleHotkey.value = props.toggleHotkey;
@@ -53,6 +60,7 @@ watch(
     fontSize.value = props.fontSize;
     cardFontSize.value = props.cardFontSize;
     cardIconScale.value = props.cardIconScale;
+    dblclickBlankToHide.value = props.dblclickBlankToHide;
   },
   { immediate: true },
 );
@@ -117,6 +125,12 @@ function onCardIconScaleInput(ev: Event): void {
   emit("updateCardIconScale", next);
 }
 
+function onDblclickChange(ev: Event): void {
+  const next = (ev.target as HTMLInputElement).checked;
+  dblclickBlankToHide.value = next;
+  emit("updateDblclickBlankToHide", next);
+}
+
 function onApplyHotkey(): void {
   emit("applyHotkey", toggleHotkey.value);
 }
@@ -127,123 +141,227 @@ function onApplyHotkey(): void {
     <div class="modal__panel" @click.stop>
       <div class="modal__title">Settings</div>
 
-      <label class="field">
-        <div class="field__label">Theme</div>
-        <select class="field__input" :value="theme" @change="onThemeChange">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
-      </label>
+      <div class="tabs" role="tablist" aria-label="Settings tabs">
+        <button
+          class="tabs__tab"
+          :class="{ 'tabs__tab--active': tab === 'appearance' }"
+          type="button"
+          @click="tab = 'appearance'"
+        >
+          Appearance
+        </button>
+        <button
+          class="tabs__tab"
+          :class="{ 'tabs__tab--active': tab === 'layout' }"
+          type="button"
+          @click="tab = 'layout'"
+        >
+          Layout
+        </button>
+        <button
+          class="tabs__tab"
+          :class="{ 'tabs__tab--active': tab === 'behavior' }"
+          type="button"
+          @click="tab = 'behavior'"
+        >
+          Behavior
+        </button>
+        <button
+          class="tabs__tab"
+          :class="{ 'tabs__tab--active': tab === 'hotkey' }"
+          type="button"
+          @click="tab = 'hotkey'"
+        >
+          Hotkey
+        </button>
+      </div>
 
-      <label class="field">
-        <div class="field__label">Sidebar width</div>
-        <input
-          class="field__input field__input--range"
-          type="range"
-          min="90"
-          max="320"
-          step="2"
-          :value="sidebarWidth"
-          @input="onSidebarWidthInput"
-        />
-        <div class="field__hint">{{ sidebarWidth }}px</div>
-      </label>
+      <template v-if="tab === 'appearance'">
+        <label class="field">
+          <div class="field__label">Theme</div>
+          <select class="field__input" :value="theme" @change="onThemeChange">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
 
-      <label class="field">
-        <div class="field__label">Font</div>
-        <select class="field__input" :value="fontFamily" @change="onFontFamilyChange">
-          <option v-for="opt in FONT_FAMILY_OPTIONS" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
-      </label>
+        <label class="field">
+          <div class="field__label">Font</div>
+          <select class="field__input" :value="fontFamily" @change="onFontFamilyChange">
+            <option v-for="opt in FONT_FAMILY_OPTIONS" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </label>
 
-      <label class="field">
-        <div class="field__label">Font size</div>
-        <input
-          class="field__input field__input--range"
-          type="range"
-          min="10"
-          max="22"
-          step="1"
-          :value="fontSize"
-          @input="onFontSizeInput"
-        />
-        <div class="field__hint">{{ fontSize }}px</div>
-      </label>
+        <label class="field">
+          <div class="field__label">Font size</div>
+          <input
+            class="field__input field__input--range"
+            type="range"
+            min="10"
+            max="22"
+            step="1"
+            :value="fontSize"
+            @input="onFontSizeInput"
+          />
+          <div class="field__hint">{{ fontSize }}px</div>
+        </label>
+      </template>
 
-      <label class="field">
-        <div class="field__label">Card width</div>
-        <input
-          class="field__input field__input--range"
-          type="range"
-          min="50"
-          max="480"
-          step="2"
-          :value="cardWidth"
-          @input="onWidthInput"
-        />
-        <div class="field__hint">{{ cardWidth }}px</div>
-      </label>
+      <template v-else-if="tab === 'layout'">
+        <label class="field">
+          <div class="field__label">Sidebar width</div>
+          <input
+            class="field__input field__input--range"
+            type="range"
+            min="90"
+            max="320"
+            step="2"
+            :value="sidebarWidth"
+            @input="onSidebarWidthInput"
+          />
+          <div class="field__hint">{{ sidebarWidth }}px</div>
+        </label>
 
-      <label class="field">
-        <div class="field__label">Card height</div>
-        <input
-          class="field__input field__input--range"
-          type="range"
-          min="40"
-          max="360"
-          step="2"
-          :value="cardHeight"
-          @input="onHeightInput"
-        />
-        <div class="field__hint">{{ cardHeight }}px</div>
-      </label>
+        <label class="field">
+          <div class="field__label">Card width</div>
+          <input
+            class="field__input field__input--range"
+            type="range"
+            min="50"
+            max="480"
+            step="2"
+            :value="cardWidth"
+            @input="onWidthInput"
+          />
+          <div class="field__hint">{{ cardWidth }}px</div>
+        </label>
 
-      <label class="field">
-        <div class="field__label">Card font size</div>
-        <input
-          class="field__input field__input--range"
-          type="range"
-          min="9"
-          max="18"
-          step="1"
-          :value="cardFontSize"
-          @input="onCardFontSizeInput"
-        />
-        <div class="field__hint">{{ cardFontSize }}px</div>
-      </label>
+        <label class="field">
+          <div class="field__label">Card height</div>
+          <input
+            class="field__input field__input--range"
+            type="range"
+            min="40"
+            max="360"
+            step="2"
+            :value="cardHeight"
+            @input="onHeightInput"
+          />
+          <div class="field__hint">{{ cardHeight }}px</div>
+        </label>
 
-      <label class="field">
-        <div class="field__label">Card icon size</div>
-        <input
-          class="field__input field__input--range"
-          type="range"
-          min="16"
-          max="128"
-          step="2"
-          :value="cardIconScale"
-          @input="onCardIconScaleInput"
-        />
-        <div class="field__hint">{{ cardIconScale }}px</div>
-      </label>
+        <label class="field">
+          <div class="field__label">Card font size</div>
+          <input
+            class="field__input field__input--range"
+            type="range"
+            min="9"
+            max="18"
+            step="1"
+            :value="cardFontSize"
+            @input="onCardFontSizeInput"
+          />
+          <div class="field__hint">{{ cardFontSize }}px</div>
+        </label>
 
-      <label class="field">
-        <div class="field__label">Toggle hotkey</div>
-        <input
-          v-model="toggleHotkey"
-          class="field__input"
-          placeholder="e.g. ctrl+alt+space"
-        />
-        <div class="field__hint">
-          Example: <code>ctrl+alt+space</code> / <code>alt+space</code> / <code>ctrl+d</code>
-        </div>
-      </label>
+        <label class="field">
+          <div class="field__label">Card icon size</div>
+          <input
+            class="field__input field__input--range"
+            type="range"
+            min="16"
+            max="128"
+            step="2"
+            :value="cardIconScale"
+            @input="onCardIconScaleInput"
+          />
+          <div class="field__hint">{{ cardIconScale }}px</div>
+        </label>
+      </template>
+
+      <template v-else-if="tab === 'behavior'">
+        <label class="check">
+          <input
+            class="check__input"
+            type="checkbox"
+            :checked="dblclickBlankToHide"
+            @change="onDblclickChange"
+          />
+          <span class="check__label">Double click blank area to hide window</span>
+        </label>
+      </template>
+
+      <template v-else>
+        <label class="field">
+          <div class="field__label">Toggle hotkey</div>
+          <input
+            v-model="toggleHotkey"
+            class="field__input"
+            placeholder="e.g. ctrl+alt+space"
+          />
+          <div class="field__hint">
+            Example: <code>ctrl+alt+space</code> / <code>alt+space</code> / <code>ctrl+d</code>
+          </div>
+        </label>
+      </template>
 
       <div class="modal__actions">
-        <button class="btn" type="button" @click="onApplyHotkey">Apply Hotkey</button>
+        <button v-if="tab === 'hotkey'" class="btn" type="button" @click="onApplyHotkey">
+          Apply Hotkey
+        </button>
         <button class="btn btn--primary" type="button" @click="emit('close')">Close</button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 2px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-input);
+}
+
+.tabs__tab {
+  flex: 1;
+  height: 32px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tabs__tab:hover {
+  background: var(--surface-hover-soft);
+}
+
+.tabs__tab--active {
+  background: rgba(86, 135, 255, 0.18);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-input);
+}
+
+.check__input {
+  width: 16px;
+  height: 16px;
+}
+
+.check__label {
+  font-size: 13px;
+  opacity: 0.92;
+}
+</style>

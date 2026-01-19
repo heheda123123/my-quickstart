@@ -11,12 +11,23 @@ const emit = defineEmits<{
   (e: "launch", entry: AppEntry): void;
   (e: "contextmenuBlank", ev: MouseEvent): void;
   (e: "contextmenuApp", ev: MouseEvent, id: string): void;
+  (e: "dblclickBlank"): void;
 }>();
+
+function onDblClick(ev: MouseEvent): void {
+  const target = ev.target as HTMLElement | null;
+  if (target?.closest(".card")) return;
+  emit("dblclickBlank");
+}
 </script>
 
 <template>
   <main class="main">
-    <div class="grid" @contextmenu.stop="(e) => emit('contextmenuBlank', e)">
+    <div
+      class="grid"
+      @contextmenu.stop="(e) => emit('contextmenuBlank', e)"
+      @dblclick.stop="onDblClick"
+    >
       <button
         v-for="a in apps"
         :key="a.id"
@@ -39,4 +50,3 @@ const emit = defineEmits<{
     </div>
   </main>
 </template>
-

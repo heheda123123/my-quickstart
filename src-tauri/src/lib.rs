@@ -7,6 +7,7 @@ use tauri::Manager;
 mod icon;
 mod hotkey;
 mod tray;
+mod uwp;
 mod window_utils;
 
 #[tauri::command]
@@ -75,6 +76,11 @@ struct UiSettings {
     card_font_size: u32,
     #[serde(rename = "cardIconScale", default = "default_card_icon_scale")]
     card_icon_scale: u32,
+    #[serde(
+        rename = "dblClickBlankToHide",
+        default = "default_dbl_click_blank_to_hide"
+    )]
+    dbl_click_blank_to_hide: bool,
 }
 
 fn default_card_height() -> u32 {
@@ -105,6 +111,10 @@ fn default_card_icon_scale() -> u32 {
     56
 }
 
+fn default_dbl_click_blank_to_hide() -> bool {
+    true
+}
+
 impl Default for UiSettings {
     fn default() -> Self {
         Self {
@@ -117,6 +127,7 @@ impl Default for UiSettings {
             font_size: default_font_size(),
             card_font_size: default_card_font_size(),
             card_icon_scale: default_card_icon_scale(),
+            dbl_click_blank_to_hide: default_dbl_click_blank_to_hide(),
         }
     }
 }
@@ -464,6 +475,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             greet,
             spawn_app,
+            uwp::list_uwp_apps,
+            uwp::spawn_uwp_app,
             icon::get_file_icon,
             set_toggle_hotkey,
             load_launcher_state,

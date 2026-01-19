@@ -23,6 +23,7 @@ export type UiSettings = {
   fontSize: number;
   cardFontSize: number;
   cardIconScale: number;
+  dblClickBlankToHide: boolean;
 };
 
 export type LauncherState = {

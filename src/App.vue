@@ -5,6 +5,7 @@ import AppGrid from "./components/AppGrid.vue";
 import ContextMenu from "./components/ContextMenu.vue";
 import AppEditorModal from "./components/AppEditorModal.vue";
 import SettingsModal from "./components/SettingsModal.vue";
+import AddAppModal from "./components/AddAppModal.vue";
 import { useLauncherModel } from "./launcher/useLauncherModel";
 
 const {
@@ -14,6 +15,7 @@ const {
   dragActive,
   toast,
   settingsOpen,
+  addAppOpen,
   appStyle,
   filteredApps,
   menu,
@@ -35,6 +37,8 @@ const {
   startWindowDragging,
   closeEditor,
   applyEditorUpdate,
+  closeAddApp,
+  addUwpToActiveGroup,
   openSettings,
   closeSettings,
   updateCardWidth,
@@ -45,7 +49,10 @@ const {
   updateCardFontSize,
   updateCardIconScale,
   updateTheme,
+  updateDblClickBlankToHide,
   applyToggleHotkey,
+  onMainBlankDoubleClick,
+  pickAndAddApps,
 } = useLauncherModel();
 
 function onSidebarBlank(ev: MouseEvent): void {
@@ -62,6 +69,10 @@ function onGridBlank(ev: MouseEvent): void {
 
 function onGridApp(ev: MouseEvent, id: string): void {
   openMenu("app", ev, id);
+}
+
+function onGridBlankDblClick(): void {
+  onMainBlankDoubleClick();
 }
 </script>
 
@@ -92,6 +103,7 @@ function onGridApp(ev: MouseEvent, id: string): void {
         @launch="launch"
         @contextmenu-blank="onGridBlank"
         @contextmenu-app="onGridApp"
+        @dblclick-blank="onGridBlankDblClick"
       />
     </div>
 
@@ -136,6 +148,7 @@ function onGridApp(ev: MouseEvent, id: string): void {
       :font-size="state.settings.fontSize"
       :card-font-size="state.settings.cardFontSize"
       :card-icon-scale="state.settings.cardIconScale"
+      :dblclick-blank-to-hide="state.settings.dblClickBlankToHide"
       @close="closeSettings"
       @update-card-width="updateCardWidth"
       @update-card-height="updateCardHeight"
@@ -145,7 +158,16 @@ function onGridApp(ev: MouseEvent, id: string): void {
       @update-font-size="updateFontSize"
       @update-card-font-size="updateCardFontSize"
       @update-card-icon-scale="updateCardIconScale"
+      @update-dblclick-blank-to-hide="updateDblClickBlankToHide"
       @apply-hotkey="applyToggleHotkey"
+    />
+
+    <AddAppModal
+      :open="addAppOpen"
+      :tauri-runtime="tauriRuntime"
+      @close="closeAddApp"
+      @add-uwp="addUwpToActiveGroup"
+      @add-desktop="pickAndAddApps().finally(closeAddApp)"
     />
   </div>
 </template>
