@@ -54,45 +54,63 @@ watch(
 
 <template>
   <div v-if="open" class="modal" @click.self="emit('close')">
-    <div class="modal__panel" @click.stop>
+    <div class="modal__panel addApp__panel" @click.stop>
       <div class="modal__title">Add UWP App</div>
-
       <div class="addApp__toolbar">
         <input v-model="search" class="field__input" placeholder="Search UWP apps..." />
+        <button class="btn addApp__close" type="button" @click="emit('close')">Close</button>
       </div>
 
-      <div v-if="loading" class="addApp__hint">Loading...</div>
-      <div v-else-if="error" class="addApp__hint addApp__hint--error">{{ error }}</div>
-      <div v-else class="addApp__list" role="list">
-        <button
-          v-for="a in filtered"
-          :key="a.appId"
-          class="addApp__item"
-          type="button"
-          @click="
-            emit('addUwp', a);
-            emit('close');
-          "
-        >
-          <div class="addApp__name">{{ a.name }}</div>
-          <div class="addApp__id">{{ a.appId }}</div>
-        </button>
+      <div class="addApp__scroll">
+        <div v-if="loading" class="addApp__hint">Loading...</div>
+        <div v-else-if="error" class="addApp__hint addApp__hint--error">{{ error }}</div>
+        <div v-else class="addApp__list" role="list">
+          <button
+            v-for="a in filtered"
+            :key="a.appId"
+            class="addApp__item"
+            type="button"
+            @click="
+              emit('addUwp', a);
+              emit('close');
+            "
+          >
+            <div class="addApp__name">{{ a.name }}</div>
+            <div class="addApp__id">{{ a.appId }}</div>
+          </button>
 
-        <div v-if="filtered.length === 0" class="addApp__hint">No results</div>
-      </div>
-
-      <div class="modal__actions">
-        <button class="btn btn--primary" type="button" @click="emit('close')">Close</button>
+          <div v-if="filtered.length === 0" class="addApp__hint">No results</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.addApp__close {
+  flex: 0 0 auto;
+}
+
+.addApp__panel {
+  overflow: hidden;
+}
+
 .addApp__toolbar {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.addApp__toolbar > .field__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.addApp__scroll {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding-top: 10px;
 }
 
 .addApp__list {
