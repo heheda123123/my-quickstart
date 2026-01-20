@@ -1,0 +1,12 @@
+.app {
+  user-select: none;
+}
+
+input,
+textarea,
+select,
+.topbar__search,
+.field__input {
+  user-select: text;
+}
+

@@ -105,6 +105,8 @@ const renderItems = computed<RenderItem[]>(() => {
 function onDblClick(ev: MouseEvent): void {
   const target = ev.target as HTMLElement | null;
   if (target?.closest(".card")) return;
+  ev.preventDefault();
+  window.getSelection()?.removeAllRanges();
   emit("dblclickBlank");
 }
 </script>
