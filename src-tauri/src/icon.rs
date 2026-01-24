@@ -15,9 +15,7 @@ pub fn get_file_icon(path: String) -> Result<Option<String>, String> {
 fn get_file_icon_windows(path: &str) -> Result<String, String> {
     use windows::core::PCWSTR;
     use windows::Win32::Foundation::SIZE;
-    use windows::Win32::Graphics::Gdi::{
-        DeleteObject, HBITMAP,
-    };
+    use windows::Win32::Graphics::Gdi::DeleteObject;
     use windows::Win32::Storage::FileSystem::FILE_FLAGS_AND_ATTRIBUTES;
     use windows::Win32::System::Com::{CoInitializeEx, COINIT_APARTMENTTHREADED};
     use windows::Win32::UI::Shell::{
@@ -27,14 +25,15 @@ fn get_file_icon_windows(path: &str) -> Result<String, String> {
     use windows::Win32::System::Com::IBindCtx;
     use windows::Win32::UI::WindowsAndMessaging::{DestroyIcon, GetIconInfo, ICONINFO};
 
-    fn hbitmap_to_png_data_url(color: HBITMAP) -> Result<String, String> {
+    fn hbitmap_to_png_data_url(
+        color: windows::Win32::Graphics::Gdi::HBITMAP,
+    ) -> Result<String, String> {
         use base64::Engine;
         use image::codecs::png::PngEncoder;
         use image::ImageEncoder;
-        use windows::Win32::Foundation::HWND;
         use windows::Win32::Graphics::Gdi::{
             GetDC, GetDIBits, GetObjectW, ReleaseDC, BITMAP, BITMAPINFO, BITMAPINFOHEADER, BI_RGB,
-            DIB_RGB_COLORS, HBITMAP,
+            DIB_RGB_COLORS,
         };
 
         if color.0.is_null() {
