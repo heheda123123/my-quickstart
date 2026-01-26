@@ -4,6 +4,7 @@ import type { AppEntry } from "../launcher/types";
 
 type Props = {
   apps: AppEntry[];
+  dragEnabled?: boolean;
   draggingAppId?: string | null;
   dropBeforeAppId?: string | null;
   dropEnd?: boolean;
@@ -58,6 +59,7 @@ function onGhostUp(): void {
 }
 
 function onMouseDownApp(ev: MouseEvent, id: string): void {
+  if (props.dragEnabled === false) return;
   const entry = props.apps.find((a) => a.id === id) ?? null;
   ghost.startX = ev.clientX;
   ghost.startY = ev.clientY;

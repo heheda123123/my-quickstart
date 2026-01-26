@@ -18,6 +18,7 @@ const {
   addAppOpen,
   appStyle,
   filteredApps,
+  isSearching,
   draggingAppId,
   dropBeforeAppId,
   dropEnd,
@@ -117,11 +118,12 @@ function onGridBlankDblClick(): void {
         @open-settings="openSettings"
       />
 
-      <AppGrid
-        :apps="filteredApps"
-        :dragging-app-id="draggingAppId"
-        :drop-before-app-id="dropBeforeAppId"
-        :drop-end="dropEnd"
+    <AppGrid
+      :apps="filteredApps"
+      :drag-enabled="!isSearching"
+      :dragging-app-id="draggingAppId"
+      :drop-before-app-id="dropBeforeAppId"
+      :drop-end="dropEnd"
         @launch="launch"
         @contextmenu-blank="onGridBlank"
         @contextmenu-app="onGridApp"

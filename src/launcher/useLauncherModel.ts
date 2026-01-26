@@ -51,12 +51,20 @@ export function useLauncherModel() {
   );
 
   const filteredApps = computed<AppEntry[]>(() => {
-    const group = activeGroup.value;
-    if (!group) return [];
     const q = search.value.trim().toLowerCase();
-    if (!q) return group.apps;
-    return group.apps.filter((a) => a.name.toLowerCase().includes(q));
+    if (!q) {
+      const group = activeGroup.value;
+      return group ? group.apps : [];
+    }
+    const matches: AppEntry[] = [];
+    for (const group of state.groups) {
+      for (const app of group.apps) {
+        if (app.name.toLowerCase().includes(q)) matches.push(app);
+      }
+    }
+    return matches;
   });
+  const isSearching = computed(() => search.value.trim().length > 0);
 
   const appStyle = computed<Record<string, string>>(() => {
     return computeAppStyle(state.settings);
@@ -252,10 +260,17 @@ export function useLauncherModel() {
     menu.targetId = targetId;
   }
 
+  function findAppById(appId?: string): { group: Group; app: AppEntry } | undefined {
+    if (!appId) return undefined;
+    for (const group of state.groups) {
+      const app = group.apps.find((x) => x.id === appId);
+      if (app) return { group, app };
+    }
+    return undefined;
+  }
+
   function getMenuApp(): AppEntry | undefined {
-    const group = activeGroup.value;
-    if (!group) return undefined;
-    return group.apps.find((x) => x.id === menu.targetId);
+    return findAppById(menu.targetId)?.app;
   }
 
   function getMenuGroup(): Group | undefined {
@@ -353,16 +368,16 @@ export function useLauncherModel() {
   );
 
   function removeApp(entry: AppEntry): void {
-    const group = activeGroup.value;
-    if (!group) return;
-    const idx = group.apps.findIndex((a) => a.id === entry.id);
-    if (idx >= 0) group.apps.splice(idx, 1);
+    const match = findAppById(entry.id);
+    if (!match) return;
+    const idx = match.group.apps.findIndex((a) => a.id === entry.id);
+    if (idx >= 0) match.group.apps.splice(idx, 1);
     scheduleSave();
   }
 
   const { editor, openEditor, closeEditor, applyEditorUpdate } =
     createAppEditorModel({
-      getActiveGroup: () => activeGroup.value,
+      getGroupByEntryId: (entryId) => findAppById(entryId)?.group,
       hydrateEntryIcons,
       scheduleSave,
     });
@@ -535,7 +550,7 @@ export function useLauncherModel() {
 
   return {
     tauriRuntime, state, search, toast,
-    settingsOpen, addAppOpen, appStyle, filteredApps,
+    settingsOpen, addAppOpen, appStyle, filteredApps, isSearching,
     menu, editor, rename, setActiveGroup, launch,
     openMenu, closeMenu, menuAddApp, menuAddUwpApp, menuAddGroup,
     menuOpenApp, menuOpenAppFolder, menuEditApp, menuRemoveApp, menuRenameGroup, menuRemoveGroup,

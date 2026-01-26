@@ -10,7 +10,7 @@ export type EditorState = {
 };
 
 export function createAppEditorModel(opts: {
-  getActiveGroup: () => Group | undefined;
+  getGroupByEntryId: (entryId: string) => Group | undefined;
   hydrateEntryIcons: (entries: AppEntry[]) => Promise<void> | void;
   scheduleSave: () => void;
 }) {
@@ -36,8 +36,9 @@ export function createAppEditorModel(opts: {
   }
 
   function saveEditor(): void {
-    const group = opts.getActiveGroup();
-    if (!group || !editor.entryId) return;
+    if (!editor.entryId) return;
+    const group = opts.getGroupByEntryId(editor.entryId);
+    if (!group) return;
     const entry = group.apps.find((a) => a.id === editor.entryId);
     if (!entry) return;
     entry.name = editor.name.trim() || entry.name;
@@ -67,4 +68,3 @@ export function createAppEditorModel(opts: {
 
   return { editor, openEditor, closeEditor, applyEditorUpdate };
 }
-
