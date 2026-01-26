@@ -443,6 +443,54 @@ export function useLauncherModel() {
     closeWindow();
   }
 
+  function isEditableTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false;
+    if (target.isContentEditable) return true;
+    const tag = target.tagName.toLowerCase();
+    return tag === "input" || tag === "textarea" || tag === "select";
+  }
+
+  function shouldAllowEditShortcut(ev: KeyboardEvent): boolean {
+    if (!(ev.ctrlKey || ev.metaKey) || ev.altKey) return false;
+    const key = ev.key.toLowerCase();
+    return key === "a" || key === "c" || key === "v" || key === "x" || key === "z" || key === "y";
+  }
+
+  function onGlobalKeydown(ev: KeyboardEvent): void {
+    if (shouldAllowEditShortcut(ev)) return;
+    if ((ev.ctrlKey || ev.metaKey) && !ev.altKey) {
+      const key = ev.key.toLowerCase();
+      if (key === "f") return;
+      if (key === "r" || key === "l" || key === "w" || key === "n" || key === "t") {
+        ev.preventDefault();
+        return;
+      }
+      if (key === "s" || key === "p" || key === "o" || key === "u") {
+        ev.preventDefault();
+        return;
+      }
+      if (key === "i" || key === "j") {
+        ev.preventDefault();
+        return;
+      }
+    }
+    if (ev.key === "F5" || ev.key === "F12") {
+      ev.preventDefault();
+      return;
+    }
+    if (ev.altKey && (ev.key === "ArrowLeft" || ev.key === "ArrowRight")) {
+      ev.preventDefault();
+      return;
+    }
+    if (!isEditableTarget(ev.target) && (ev.key === "Backspace" || ev.key === "Delete")) {
+      ev.preventDefault();
+    }
+  }
+
+  function onGlobalContextMenu(ev: MouseEvent): void {
+    ev.preventDefault();
+  }
+
   function updateSidebarWidth(value: number): void {
     state.settings.sidebarWidth = clampSidebarWidth(value);
     scheduleSave();
@@ -494,6 +542,8 @@ export function useLauncherModel() {
   let uninstallSearchShortcuts: (() => void) | null = null;
 
   onMounted(async () => {
+    window.addEventListener("contextmenu", onGlobalContextMenu, true);
+    window.addEventListener("keydown", onGlobalKeydown, true);
     window.addEventListener("click", closeMenu);
     window.addEventListener("blur", closeMenu);
     uninstallSearchShortcuts = installSearchShortcuts({ search, inputSelector: ".topbar__search" });
@@ -539,6 +589,8 @@ export function useLauncherModel() {
   });
 
   onUnmounted(() => {
+    window.removeEventListener("contextmenu", onGlobalContextMenu, true);
+    window.removeEventListener("keydown", onGlobalKeydown, true);
     window.removeEventListener("click", closeMenu);
     window.removeEventListener("blur", closeMenu);
     if (uninstallSearchShortcuts) uninstallSearchShortcuts();
