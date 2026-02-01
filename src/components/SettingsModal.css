@@ -1,0 +1,64 @@
+.settingsPanel {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+}
+
+.settingsPanel > .modal__panel {
+  width: min(420px, calc(100vw - 32px));
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.modal__title--draggable {
+  cursor: move;
+  user-select: none;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 2px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-input);
+}
+
+.tabs__tab {
+  flex: 1;
+  height: 32px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tabs__tab:hover {
+  background: var(--surface-hover-soft);
+}
+
+.tabs__tab--active {
+  background: rgba(86, 135, 255, 0.18);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-input);
+}
+
+.check__input {
+  width: 16px;
+  height: 16px;
+}
+
+.check__label {
+  font-size: 13px;
+  opacity: 0.92;
+}
+

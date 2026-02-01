@@ -1,4 +1,5 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { t } from "./i18n";
 
 type Options = {
   tauriRuntime: boolean;
@@ -20,7 +21,7 @@ export function createWindowControls(options: Options) {
       await getCurrentWindow().minimize();
     } catch (e) {
       showToast(
-        `Minimize failed: ${e instanceof Error ? e.message : String(e)}`,
+        t("error.minimizeFailed", { error: e instanceof Error ? e.message : String(e) }),
       );
     }
   }
@@ -31,7 +32,7 @@ export function createWindowControls(options: Options) {
       await getCurrentWindow().toggleMaximize();
     } catch (e) {
       showToast(
-        `Toggle maximize failed: ${e instanceof Error ? e.message : String(e)}`,
+        t("error.maximizeFailed", { error: e instanceof Error ? e.message : String(e) }),
       );
     }
   }
@@ -42,7 +43,7 @@ export function createWindowControls(options: Options) {
       await getCurrentWindow().close();
     } catch (e) {
       showToast(
-        `Close failed: ${e instanceof Error ? e.message : String(e)}`,
+        t("error.closeFailed", { error: e instanceof Error ? e.message : String(e) }),
       );
     }
   }
@@ -75,7 +76,7 @@ export function createWindowControls(options: Options) {
       await getCurrentWindow().startDragging();
     } catch (e) {
       showToast(
-        `Drag failed: ${e instanceof Error ? e.message : String(e)}`,
+        t("error.dragFailed", { error: e instanceof Error ? e.message : String(e) }),
       );
     }
     ev.preventDefault();
@@ -87,7 +88,7 @@ export function createWindowControls(options: Options) {
       await getCurrentWindow().setAlwaysOnTop(value);
     } catch (e) {
       showToast(
-        `Always on top failed: ${e instanceof Error ? e.message : String(e)}`,
+        t("error.alwaysOnTopFailed", { error: e instanceof Error ? e.message : String(e) }),
       );
     }
   }

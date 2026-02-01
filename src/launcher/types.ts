@@ -7,6 +7,8 @@ export type AppEntry = {
   addedAt: number;
 };
 
+export type UiLanguage = "en" | "zh-CN";
+
 export type Group = {
   id: string;
   name: string;
@@ -14,6 +16,7 @@ export type Group = {
 };
 
 export type UiSettings = {
+  language: UiLanguage;
   cardWidth: number;
   cardHeight: number;
   toggleHotkey: string;

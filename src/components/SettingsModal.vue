@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { FONT_FAMILY_OPTIONS } from "../launcher/fonts";
+import { t } from "../launcher/i18n";
 
 type Props = {
   open: boolean;
+  language: string;
   cardWidth: number;
   cardHeight: number;
   toggleHotkey: string;
@@ -23,6 +25,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: "close"): void;
+  (e: "updateLanguage", value: string): void;
   (e: "updateCardWidth", value: number): void;
   (e: "updateCardHeight", value: number): void;
   (e: "applyHotkey", value: string): void;
@@ -38,6 +41,7 @@ const emit = defineEmits<{
   (e: "updateUseRelativePath", value: boolean): void;
 }>();
 
+const language = ref("en");
 const cardWidth = ref(120);
 const cardHeight = ref(96);
 const toggleHotkey = ref("");
@@ -146,6 +150,7 @@ watch(
     if (!open) return;
     void ensureInitialPosition();
     tab.value = "appearance";
+    language.value = props.language;
     cardWidth.value = props.cardWidth;
     cardHeight.value = props.cardHeight;
     toggleHotkey.value = props.toggleHotkey;
@@ -162,6 +167,12 @@ watch(
   },
   { immediate: true },
 );
+
+function onLanguageChange(ev: Event): void {
+  const next = (ev.target as HTMLSelectElement).value;
+  language.value = next;
+  emit("updateLanguage", next);
+}
 
 function onWidthInput(ev: Event): void {
   const raw = (ev.target as HTMLInputElement).value;
@@ -259,16 +270,18 @@ function onApplyHotkey(): void {
     :style="{ left: `${panelX}px`, top: `${panelY}px` }"
   >
     <div ref="panelEl" class="modal__panel" :style="{ maxHeight: `${panelMaxHeight}px` }">
-      <div class="modal__title modal__title--draggable" @mousedown="startDrag">Settings</div>
+      <div class="modal__title modal__title--draggable" @mousedown="startDrag">
+        {{ t("settings.title") }}
+      </div>
 
-      <div class="tabs" role="tablist" aria-label="Settings tabs">
+      <div class="tabs" role="tablist" :aria-label="t('settings.title')">
         <button
           class="tabs__tab"
           :class="{ 'tabs__tab--active': tab === 'appearance' }"
           type="button"
           @click="tab = 'appearance'"
         >
-          Appearance
+          {{ t("settings.tabs.appearance") }}
         </button>
         <button
           class="tabs__tab"
@@ -276,7 +289,7 @@ function onApplyHotkey(): void {
           type="button"
           @click="tab = 'layout'"
         >
-          Layout
+          {{ t("settings.tabs.layout") }}
         </button>
         <button
           class="tabs__tab"
@@ -284,7 +297,7 @@ function onApplyHotkey(): void {
           type="button"
           @click="tab = 'behavior'"
         >
-          Behavior
+          {{ t("settings.tabs.behavior") }}
         </button>
         <button
           class="tabs__tab"
@@ -292,21 +305,29 @@ function onApplyHotkey(): void {
           type="button"
           @click="tab = 'hotkey'"
         >
-          Hotkey
+          {{ t("settings.tabs.hotkey") }}
         </button>
       </div>
 
       <template v-if="tab === 'appearance'">
         <label class="field">
-          <div class="field__label">Theme</div>
-          <select class="field__input" :value="theme" @change="onThemeChange">
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
+          <div class="field__label">{{ t("settings.language") }}</div>
+          <select class="field__input" :value="language" @change="onLanguageChange">
+            <option value="en">English</option>
+            <option value="zh-CN">简体中文</option>
           </select>
         </label>
 
         <label class="field">
-          <div class="field__label">Font</div>
+          <div class="field__label">{{ t("settings.theme") }}</div>
+          <select class="field__input" :value="theme" @change="onThemeChange">
+            <option value="dark">{{ t("settings.theme.dark") }}</option>
+            <option value="light">{{ t("settings.theme.light") }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <div class="field__label">{{ t("settings.font") }}</div>
           <select class="field__input" :value="fontFamily" @change="onFontFamilyChange">
             <option v-for="opt in FONT_FAMILY_OPTIONS" :key="opt.value" :value="opt.value">
               {{ opt.label }}
@@ -315,7 +336,7 @@ function onApplyHotkey(): void {
         </label>
 
         <label class="field">
-          <div class="field__label">Font size</div>
+          <div class="field__label">{{ t("settings.fontSize") }}</div>
           <input
             class="field__input field__input--range"
             type="range"
@@ -331,7 +352,7 @@ function onApplyHotkey(): void {
 
       <template v-else-if="tab === 'layout'">
         <label class="field">
-          <div class="field__label">Sidebar width</div>
+          <div class="field__label">{{ t("settings.sidebarWidth") }}</div>
           <input
             class="field__input field__input--range"
             type="range"
@@ -345,7 +366,7 @@ function onApplyHotkey(): void {
         </label>
 
         <label class="field">
-          <div class="field__label">Card width</div>
+          <div class="field__label">{{ t("settings.cardWidth") }}</div>
           <input
             class="field__input field__input--range"
             type="range"
@@ -359,7 +380,7 @@ function onApplyHotkey(): void {
         </label>
 
         <label class="field">
-          <div class="field__label">Card height</div>
+          <div class="field__label">{{ t("settings.cardHeight") }}</div>
           <input
             class="field__input field__input--range"
             type="range"
@@ -373,7 +394,7 @@ function onApplyHotkey(): void {
         </label>
 
         <label class="field">
-          <div class="field__label">Card font size</div>
+          <div class="field__label">{{ t("settings.cardFontSize") }}</div>
           <input
             class="field__input field__input--range"
             type="range"
@@ -387,7 +408,7 @@ function onApplyHotkey(): void {
         </label>
 
         <label class="field">
-          <div class="field__label">Card icon size</div>
+          <div class="field__label">{{ t("settings.cardIconSize") }}</div>
           <input
             class="field__input field__input--range"
             type="range"
@@ -409,7 +430,7 @@ function onApplyHotkey(): void {
             :checked="dblclickBlankToHide"
             @change="onDblclickChange"
           />
-          <span class="check__label">Double click blank area to hide window</span>
+          <span class="check__label">{{ t("settings.behavior.dblClickBlankToHide") }}</span>
         </label>
 
         <label class="check">
@@ -419,7 +440,7 @@ function onApplyHotkey(): void {
             :checked="alwaysOnTop"
             @change="onAlwaysOnTopChange"
           />
-          <span class="check__label">Always on top</span>
+          <span class="check__label">{{ t("settings.behavior.alwaysOnTop") }}</span>
         </label>
 
         <label class="check">
@@ -429,7 +450,7 @@ function onApplyHotkey(): void {
             :checked="hideOnStartup"
             @change="onHideOnStartupChange"
           />
-          <span class="check__label">Hide window on startup</span>
+          <span class="check__label">{{ t("settings.behavior.hideOnStartup") }}</span>
         </label>
 
         <label class="check">
@@ -439,96 +460,35 @@ function onApplyHotkey(): void {
             :checked="useRelativePath"
             @change="onUseRelativePathChange"
           />
-          <span class="check__label">Use relative paths when adding apps</span>
+          <span class="check__label">{{ t("settings.behavior.useRelativePath") }}</span>
         </label>
       </template>
 
       <template v-else>
         <label class="field">
-          <div class="field__label">Toggle hotkey</div>
+          <div class="field__label">{{ t("settings.toggleHotkey") }}</div>
           <input
             v-model="toggleHotkey"
             class="field__input"
-            placeholder="e.g. ctrl+alt+space"
+            :placeholder="t('settings.toggleHotkeyPlaceholder')"
           />
           <div class="field__hint">
-            Example: <code>ctrl+alt+space</code> / <code>alt+space</code> / <code>ctrl+d</code>
+            {{ t("settings.toggleHotkeyHintPrefix") }}
+            <code>ctrl+alt+space</code> / <code>alt+space</code> / <code>ctrl+d</code>
           </div>
         </label>
       </template>
 
       <div class="modal__actions">
         <button v-if="tab === 'hotkey'" class="btn" type="button" @click="onApplyHotkey">
-          Apply Hotkey
+          {{ t("settings.applyHotkey") }}
         </button>
-        <button class="btn btn--primary" type="button" @click="emit('close')">Close</button>
+        <button class="btn btn--primary" type="button" @click="emit('close')">
+          {{ t("common.close") }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.settingsPanel {
-  position: fixed;
-  z-index: 70;
-  pointer-events: none;
-}
-
-.settingsPanel > .modal__panel {
-  width: min(420px, calc(100vw - 32px));
-  pointer-events: auto;
-  box-sizing: border-box;
-}
-
-.modal__title--draggable {
-  cursor: move;
-  user-select: none;
-}
-
-.tabs {
-  display: flex;
-  gap: 6px;
-  padding: 2px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--surface-input);
-}
-
-.tabs__tab {
-  flex: 1;
-  height: 32px;
-  border-radius: 10px;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-.tabs__tab:hover {
-  background: var(--surface-hover-soft);
-}
-
-.tabs__tab--active {
-  background: rgba(86, 135, 255, 0.18);
-}
-
-.check {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--surface-input);
-}
-
-.check__input {
-  width: 16px;
-  height: 16px;
-}
-
-.check__label {
-  font-size: 13px;
-  opacity: 0.92;
-}
-</style>
+<style scoped src="./SettingsModal.css"></style>

@@ -8,6 +8,7 @@ import SettingsModal from "./components/SettingsModal.vue";
 import AddAppModal from "./components/AddAppModal.vue";
 import GroupRenameModal from "./components/GroupRenameModal.vue";
 import { useLauncherModel } from "./launcher/useLauncherModel";
+import { t } from "./launcher/i18n";
 
 const {
   tauriRuntime,
@@ -64,6 +65,7 @@ const {
   updateCardFontSize,
   updateCardIconScale,
   updateTheme,
+  updateLanguage,
   updateDblClickBlankToHide,
   updateAlwaysOnTop,
   updateHideOnStartup,
@@ -96,7 +98,7 @@ function onGridBlankDblClick(): void {
 <template>
   <div class="app" :style="appStyle" :data-theme="state.settings.theme">
     <TopBar
-      title="Quick Launcher"
+      :title="t('app.title')"
       v-model="search"
       :tauri-runtime="tauriRuntime"
       @minimize="minimizeWindow()"
@@ -172,6 +174,7 @@ function onGridBlankDblClick(): void {
 
     <SettingsModal
       :open="settingsOpen"
+      :language="state.settings.language"
       :card-width="state.settings.cardWidth"
       :card-height="state.settings.cardHeight"
       :toggle-hotkey="state.settings.toggleHotkey"
@@ -195,6 +198,7 @@ function onGridBlankDblClick(): void {
       @update-card-font-size="updateCardFontSize"
       @update-card-icon-scale="updateCardIconScale"
       @update-dblclick-blank-to-hide="updateDblClickBlankToHide"
+      @update-language="updateLanguage"
       @update-always-on-top="updateAlwaysOnTop"
       @update-hide-on-startup="updateHideOnStartup"
       @update-use-relative-path="updateUseRelativePath"

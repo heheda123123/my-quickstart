@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import type { AppEntry, Group } from "./types";
+import { t } from "./i18n";
 import { addAppsToGroup, createId } from "./utils";
 
 export type UwpAppInfo = { name: string; appId: string };
@@ -35,7 +36,7 @@ export function createAddAppFlow(opts: {
     const normalized = opts.transformPaths ? await opts.transformPaths(paths) : paths;
     const added = addAppsToGroup(group, normalized);
     if (added.length > 0) {
-      opts.showToast(`Added ${added.length} item(s)`);
+      opts.showToast(t("toast.addedItems", { count: added.length }));
       opts.hydrateEntryIcons(added);
       opts.scheduleSave();
     }
@@ -43,13 +44,13 @@ export function createAddAppFlow(opts: {
 
   async function pickAndAddDesktopApps(): Promise<void> {
     if (!opts.tauriRuntime) {
-      opts.showToast("This action requires the Tauri runtime");
+      opts.showToast(t("error.tauriRuntimeRequired"));
       return;
     }
     const selection = await openDialog({
       multiple: true,
       directory: false,
-      title: "Add application",
+      title: t("dialog.addApplicationTitle"),
     });
     if (!selection) return;
     const paths = Array.isArray(selection) ? selection : [selection];
@@ -75,7 +76,7 @@ export function createAddAppFlow(opts: {
     group.apps.unshift(entry);
     const added = group.apps.find((x) => x.id === entry.id);
     if (added) opts.hydrateEntryIcons([added]);
-    opts.showToast("Added 1 item(s)");
+    opts.showToast(t("toast.addedItems", { count: 1 }));
     opts.scheduleSave();
   }
 

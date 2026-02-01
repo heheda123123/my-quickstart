@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from "../launcher/i18n";
+
 type Props = {
   title: string;
   modelValue: string;
@@ -29,20 +31,35 @@ function onInput(ev: Event): void {
     <div class="topbar__right">
       <input
         class="topbar__search"
-        placeholder="Search..."
+        :placeholder="t('topbar.searchPlaceholder')"
         :value="modelValue"
         @input="onInput"
       />
 
       <div v-if="tauriRuntime" class="winControls">
-        <button class="winBtn" type="button" aria-label="Minimize" @click="emit('minimize')">
-          —
+        <button
+          class="winBtn"
+          type="button"
+          :aria-label="t('window.minimize')"
+          @click="emit('minimize')"
+        >
+          -
         </button>
-        <button class="winBtn" type="button" aria-label="Maximize" @click="emit('toggleMaximize')">
-          ☐
+        <button
+          class="winBtn"
+          type="button"
+          :aria-label="t('window.maximize')"
+          @click="emit('toggleMaximize')"
+        >
+          []
         </button>
-        <button class="winBtn winBtn--close" type="button" aria-label="Close" @click="emit('close')">
-          ×
+        <button
+          class="winBtn winBtn--close"
+          type="button"
+          :aria-label="t('window.close')"
+          @click="emit('close')"
+        >
+          x
         </button>
       </div>
     </div>

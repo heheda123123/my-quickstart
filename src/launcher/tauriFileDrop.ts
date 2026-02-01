@@ -2,6 +2,7 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { AppEntry, Group } from "./types";
 import { computeExternalDropTarget } from "./externalDrop";
 import { type PendingExternalTarget } from "./externalFileDropPreview";
+import { t } from "./i18n";
 import { addAppsToGroupAt, normalizeDroppedPaths } from "./utils";
 
 export async function installTauriFileDropListeners(opts: {
@@ -30,7 +31,7 @@ export async function installTauriFileDropListeners(opts: {
     const normalized = opts.transformPaths ? await opts.transformPaths(paths) : paths;
     const added = addAppsToGroupAt(group, normalized, idxBase);
     if (added.length > 0) {
-      opts.showToast(`Added ${added.length} item(s)`);
+      opts.showToast(t("toast.addedItems", { count: added.length }));
       await opts.hydrateEntryIcons(added);
       opts.scheduleSave();
     }

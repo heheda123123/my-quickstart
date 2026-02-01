@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
+import { t } from "../launcher/i18n";
 
 type Props = {
   open: boolean;
@@ -44,9 +45,9 @@ function onKeydown(ev: KeyboardEvent): void {
 <template>
   <div v-if="open" class="modal" @click.self="emit('close')">
     <div class="modal__panel" @click.stop>
-      <div class="modal__title">Rename Group</div>
+      <div class="modal__title">{{ t("rename.title") }}</div>
       <label class="field">
-        <div class="field__label">Group name</div>
+        <div class="field__label">{{ t("rename.groupName") }}</div>
         <input
           ref="inputEl"
           v-model="name"
@@ -55,10 +56,9 @@ function onKeydown(ev: KeyboardEvent): void {
         />
       </label>
       <div class="modal__actions">
-        <button class="btn" type="button" @click="emit('close')">Cancel</button>
-        <button class="btn btn--primary" type="button" @click="onSave">Save</button>
+        <button class="btn" type="button" @click="emit('close')">{{ t("common.cancel") }}</button>
+        <button class="btn btn--primary" type="button" @click="onSave">{{ t("common.save") }}</button>
       </div>
     </div>
   </div>
 </template>
-

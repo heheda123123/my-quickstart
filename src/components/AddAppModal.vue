@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import { t } from "../launcher/i18n";
 
 type UwpAppInfo = { name: string; appId: string };
 
@@ -35,7 +36,7 @@ watch(
     error.value = null;
     if (!props.tauriRuntime) {
       apps.value = [];
-      error.value = "Tauri runtime required";
+      error.value = t("error.tauriRuntimeRequired");
       return;
     }
     loading.value = true;
@@ -55,14 +56,20 @@ watch(
 <template>
   <div v-if="open" class="modal" @click.self="emit('close')">
     <div class="modal__panel addApp__panel" @click.stop>
-      <div class="modal__title">Add UWP App</div>
+      <div class="modal__title">{{ t("addUwp.title") }}</div>
       <div class="addApp__toolbar">
-        <input v-model="search" class="field__input" placeholder="Search UWP apps..." />
-        <button class="btn addApp__close" type="button" @click="emit('close')">Close</button>
+        <input
+          v-model="search"
+          class="field__input"
+          :placeholder="t('addUwp.searchPlaceholder')"
+        />
+        <button class="btn addApp__close" type="button" @click="emit('close')">
+          {{ t("common.close") }}
+        </button>
       </div>
 
       <div class="addApp__scroll">
-        <div v-if="loading" class="addApp__hint">Loading...</div>
+        <div v-if="loading" class="addApp__hint">{{ t("addUwp.loading") }}</div>
         <div v-else-if="error" class="addApp__hint addApp__hint--error">{{ error }}</div>
         <div v-else class="addApp__list" role="list">
           <button
@@ -79,7 +86,7 @@ watch(
             <div class="addApp__id">{{ a.appId }}</div>
           </button>
 
-          <div v-if="filtered.length === 0" class="addApp__hint">No results</div>
+          <div v-if="filtered.length === 0" class="addApp__hint">{{ t("addUwp.noResults") }}</div>
         </div>
       </div>
     </div>

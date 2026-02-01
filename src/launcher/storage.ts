@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { AppEntry, Group, LauncherState } from "./types";
 import { createDefaultState, createId, suggestAppName } from "./utils";
+import { normalizeUiLanguage } from "./i18n";
 import {
   clampCardHeight,
   clampCardIconScale,
@@ -82,6 +83,10 @@ function coerceLauncherState(value: unknown): LauncherState | null {
       ? (raw.settings as Record<string, unknown>)
       : {};
   const settings = { ...defaults };
+
+  if (typeof rawSettings.language === "string" && rawSettings.language.trim()) {
+    settings.language = normalizeUiLanguage(rawSettings.language);
+  }
 
   if (typeof rawSettings.cardWidth === "number") {
     settings.cardWidth = clampCardWidth(rawSettings.cardWidth);

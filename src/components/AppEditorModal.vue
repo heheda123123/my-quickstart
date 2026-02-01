@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { t } from "../launcher/i18n";
 
 type Props = {
   open: boolean;
@@ -42,24 +43,23 @@ function onSave(): void {
 <template>
   <div v-if="open" class="modal" @click.self="emit('close')">
     <div class="modal__panel" @click.stop>
-      <div class="modal__title">Edit App</div>
+      <div class="modal__title">{{ t("editor.title") }}</div>
       <label class="field">
-        <div class="field__label">Name</div>
+        <div class="field__label">{{ t("editor.name") }}</div>
         <input v-model="name" class="field__input" />
       </label>
       <label class="field">
-        <div class="field__label">Path</div>
+        <div class="field__label">{{ t("editor.path") }}</div>
         <input v-model="path" class="field__input" />
       </label>
       <label class="field">
-        <div class="field__label">Args</div>
-        <input v-model="args" class="field__input" placeholder='--flag "value with spaces"' />
+        <div class="field__label">{{ t("editor.args") }}</div>
+        <input v-model="args" class="field__input" :placeholder="t('editor.argsPlaceholder')" />
       </label>
       <div class="modal__actions">
-        <button class="btn" type="button" @click="emit('close')">Cancel</button>
-        <button class="btn btn--primary" type="button" @click="onSave">Save</button>
+        <button class="btn" type="button" @click="emit('close')">{{ t("common.cancel") }}</button>
+        <button class="btn btn--primary" type="button" @click="onSave">{{ t("common.save") }}</button>
       </div>
     </div>
   </div>
 </template>
-

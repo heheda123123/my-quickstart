@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { t } from "../launcher/i18n";
 
 export type MenuKind = "blankMain" | "blankSidebar" | "app" | "group";
 
@@ -85,29 +86,41 @@ const emit = defineEmits<{
     @contextmenu.prevent
   >
     <template v-if="kind === 'blankMain'">
-      <button class="menu__item" type="button" @click="emit('addApp')">Add App</button>
-      <button class="menu__item" type="button" @click="emit('addUwpApp')">Add UWP App</button>
+      <button class="menu__item" type="button" @click="emit('addApp')">
+        {{ t("menu.addApp") }}
+      </button>
+      <button class="menu__item" type="button" @click="emit('addUwpApp')">
+        {{ t("menu.addUwpApp") }}
+      </button>
     </template>
 
     <template v-else-if="kind === 'blankSidebar'">
-      <button class="menu__item" type="button" @click="emit('addGroup')">Add Group</button>
+      <button class="menu__item" type="button" @click="emit('addGroup')">
+        {{ t("menu.addGroup") }}
+      </button>
     </template>
 
     <template v-else-if="kind === 'app'">
-      <button class="menu__item" type="button" @click="emit('openApp')">Open</button>
-      <button class="menu__item" type="button" @click="emit('openAppFolder')">
-        Open Folder
+      <button class="menu__item" type="button" @click="emit('openApp')">
+        {{ t("menu.open") }}
       </button>
-      <button class="menu__item" type="button" @click="emit('editApp')">Edit</button>
+      <button class="menu__item" type="button" @click="emit('openAppFolder')">
+        {{ t("menu.openFolder") }}
+      </button>
+      <button class="menu__item" type="button" @click="emit('editApp')">
+        {{ t("menu.edit") }}
+      </button>
       <button class="menu__item menu__item--danger" type="button" @click="emit('removeApp')">
-        Remove
+        {{ t("menu.remove") }}
       </button>
     </template>
 
     <template v-else-if="kind === 'group'">
-      <button class="menu__item" type="button" @click="emit('renameGroup')">Rename</button>
+      <button class="menu__item" type="button" @click="emit('renameGroup')">
+        {{ t("menu.rename") }}
+      </button>
       <button class="menu__item menu__item--danger" type="button" @click="emit('removeGroup')">
-        Remove Group
+        {{ t("menu.removeGroup") }}
       </button>
     </template>
   </div>

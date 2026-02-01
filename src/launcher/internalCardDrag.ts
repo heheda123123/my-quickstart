@@ -2,6 +2,7 @@ import { reactive } from "vue";
 import type { Group } from "./types";
 import { moveAppByDragPayload } from "./cardDnd";
 import { computeInsertTargetFromGrid } from "./domInsertTarget";
+import { t } from "./i18n";
 
 export type InternalCardDragState = {
   dragging: boolean;
@@ -124,7 +125,7 @@ export function createInternalCardDrag(opts: {
       if (moved.moved) {
         opts.scheduleSave();
         if (moved.toGroupName && moved.toGroupName !== active.name) {
-          opts.showToast(`Moved to ${moved.toGroupName}`);
+          opts.showToast(t("toast.movedToGroup", { group: moved.toGroupName }));
         }
       }
       suppressClickUntil = Date.now() + 250;

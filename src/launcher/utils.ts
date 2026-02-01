@@ -1,4 +1,5 @@
 import type { AppEntry, Group, LauncherState, UiSettings } from "./types";
+import { guessSystemLanguage } from "./i18n";
 
 export function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -22,6 +23,7 @@ export function suggestAppName(filePath: string): string {
 
 export function createDefaultState(): LauncherState {
   const settings: UiSettings = {
+    language: guessSystemLanguage(),
     cardWidth: 120,
     cardHeight: 96,
     toggleHotkey: "",

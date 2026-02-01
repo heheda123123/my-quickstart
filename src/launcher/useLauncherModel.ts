@@ -11,6 +11,7 @@ import { createExternalFileDropPreview } from "./externalFileDropPreview";
 import { createInternalCardDrag } from "./internalCardDrag";
 import { installSearchShortcuts } from "./searchShortcuts";
 import { installTauriFileDropListeners } from "./tauriFileDrop";
+import { normalizeUiLanguage, setUiLanguage, t } from "./i18n";
 import {
   createDefaultState,
   createId,
@@ -38,6 +39,7 @@ export function useLauncherModel() {
   const tauriRuntime = isTauriRuntime();
 
   const state = reactive<LauncherState>(createDefaultState());
+  setUiLanguage(state.settings.language);
   const search = ref("");
   const toast = ref<string | null>(null);
   const hydrated = ref(false);
@@ -75,6 +77,7 @@ export function useLauncherModel() {
     state.activeGroupId = loaded.activeGroupId;
     state.groups.splice(0, state.groups.length, ...loaded.groups);
     applyLoadedUiSettings(state.settings, loaded.settings);
+    setUiLanguage(state.settings.language);
   }
 
   function showToast(message: string): void {
@@ -101,14 +104,17 @@ export function useLauncherModel() {
       saveState(plain).catch((e) => {
         if (saveErrorShown) return;
         saveErrorShown = true;
-        showToast(
-          `Save failed: ${e instanceof Error ? e.message : String(e)}`,
-        );
+        showToast(t("error.saveFailed", { error: e instanceof Error ? e.message : String(e) }));
       });
     }, 250);
   }
 
   watch(state, scheduleSave, { deep: true });
+  watch(
+    () => state.settings.language,
+    (lang) => setUiLanguage(normalizeUiLanguage(lang)),
+    { immediate: true },
+  );
 
   const {
     addAppOpen,
@@ -174,7 +180,7 @@ export function useLauncherModel() {
   async function launch(entry: AppEntry): Promise<void> {
     if (internalDrag.shouldSuppressClick()) return;
     if (!isTauriRuntime()) {
-      showToast("This action requires the Tauri runtime");
+      showToast(t("error.tauriRuntimeRequired"));
       return;
     }
     try {
@@ -198,9 +204,7 @@ export function useLauncherModel() {
                   return String(e);
                 }
               })();
-      showToast(
-        `Failed to open: ${details || "unknown error"}`,
-      );
+      showToast(t("error.openFailed", { error: details || t("error.unknown") }));
     }
   }
 
@@ -301,16 +305,14 @@ export function useLauncherModel() {
     const entry = getMenuApp();
     if (!entry) return;
     if (!tauriRuntime) {
-      showToast("This action requires the Tauri runtime");
+      showToast(t("error.tauriRuntimeRequired"));
       closeMenu();
       return;
     }
     try {
       await invoke("open_app_folder", { path: entry.path });
     } catch (e) {
-      showToast(
-        `Open folder failed: ${e instanceof Error ? e.message : String(e)}`,
-      );
+      showToast(t("error.openFolderFailed", { error: e instanceof Error ? e.message : String(e) }));
     } finally {
       closeMenu();
     }
@@ -414,6 +416,11 @@ export function useLauncherModel() {
 
   function updateTheme(value: string): void {
     state.settings.theme = normalizeTheme(value);
+    scheduleSave();
+  }
+
+  function updateLanguage(value: string): void {
+    state.settings.language = normalizeUiLanguage(value);
     scheduleSave();
   }
 
@@ -522,7 +529,7 @@ export function useLauncherModel() {
 
   async function applyToggleHotkey(value: string): Promise<void> {
     if (!tauriRuntime) {
-      showToast("This action requires the Tauri runtime");
+      showToast(t("error.tauriRuntimeRequired"));
       return;
     }
     const normalized = value.trim().toLowerCase();
@@ -530,11 +537,9 @@ export function useLauncherModel() {
       await invoke("set_toggle_hotkey", { hotkey: normalized });
       state.settings.toggleHotkey = normalized;
       scheduleSave();
-      showToast("Hotkey updated");
+      showToast(t("toast.hotkeyUpdated"));
     } catch (e) {
-      showToast(
-        `Hotkey failed: ${e instanceof Error ? e.message : String(e)}`,
-      );
+      showToast(t("error.hotkeyFailed", { error: e instanceof Error ? e.message : String(e) }));
     }
   }
 
@@ -552,9 +557,7 @@ export function useLauncherModel() {
       const loaded = await loadState();
       applyLoadedState(loaded);
     } catch (e) {
-      showToast(
-        `Load failed: ${e instanceof Error ? e.message : String(e)}`,
-      );
+      showToast(t("error.loadFailed", { error: e instanceof Error ? e.message : String(e) }));
     } finally {
       hydrated.value = true;
     }
@@ -612,7 +615,7 @@ export function useLauncherModel() {
     closeEditor, applyEditorUpdate, openSettings, closeSettings,
     updateCardWidth, updateCardHeight, updateSidebarWidth, updateFontFamily, updateFontSize,
     updateCardFontSize, updateCardIconScale, updateTheme, updateDblClickBlankToHide,
-    updateAlwaysOnTop, updateHideOnStartup, updateUseRelativePath, applyToggleHotkey, onMainBlankDoubleClick,
+    updateLanguage, updateAlwaysOnTop, updateHideOnStartup, updateUseRelativePath, applyToggleHotkey, onMainBlankDoubleClick,
     openRenameGroup: openRename, closeRenameGroup: closeRename, saveRenameGroup: saveRename,
     draggingAppId, dropBeforeAppId, dropEnd, dropTargetGroupId,
     onMouseDownApp: internalDrag.onMouseDownApp,

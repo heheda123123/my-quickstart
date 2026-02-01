@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Group } from "../launcher/types";
+import { t } from "../launcher/i18n";
 
 type Props = {
   groups: Group[];
@@ -49,7 +50,7 @@ const emit = defineEmits<{
         @click="emit('openSettings')"
         @contextmenu.stop
       >
-        Settings
+        {{ t("sidebar.settings") }}
       </button>
     </div>
   </aside>

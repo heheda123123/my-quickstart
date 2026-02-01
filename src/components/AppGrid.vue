@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, reactive } from "vue";
 import type { AppEntry } from "../launcher/types";
+import { t } from "../launcher/i18n";
 
 type Props = {
   apps: AppEntry[];
@@ -155,8 +156,8 @@ function onDblClick(ev: MouseEvent): void {
       <div v-if="props.dropEnd" class="grid__dropEnd" aria-hidden="true" />
 
       <div v-if="apps.length === 0" class="empty">
-        <div class="empty__title">No apps</div>
-        <div class="empty__hint">Right click to add, or drop files into this window.</div>
+        <div class="empty__title">{{ t("empty.title") }}</div>
+        <div class="empty__hint">{{ t("empty.hint") }}</div>
       </div>
     </div>
 

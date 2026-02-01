@@ -1,5 +1,6 @@
 import type { UiSettings } from "./types";
 import { resolveFontFamilyCss } from "./fonts";
+import { normalizeUiLanguage } from "./i18n";
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -34,6 +35,10 @@ export function clampCardIconScale(value: number, max: number): number {
 }
 
 export function applyLoadedUiSettings(target: UiSettings, loaded: UiSettings): void {
+  const maybeLanguage = (loaded as any).language;
+  if (typeof maybeLanguage === "string" && maybeLanguage.trim()) {
+    target.language = normalizeUiLanguage(maybeLanguage);
+  }
   target.cardWidth = clampCardWidth(loaded.cardWidth);
   target.cardHeight = clampCardHeight(loaded.cardHeight);
   target.toggleHotkey = loaded.toggleHotkey ?? "";
